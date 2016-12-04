@@ -16,7 +16,7 @@
 	var $ = window.$;
 
 	var HLtype = 2, // Type of highlight: 0 - off, 1 - ID to font color; 2 - ID to background color
-		lightLimit = 160, // threshold of brightness
+		lightLimit = 128, // threshold of brightness
 		
 		// hl-type: 1
 		bgDark = "#404040", // color of BG when font color is bright
@@ -46,7 +46,9 @@
 
 		if(HLtype) {
 			var rgb = [parseInt(id.substr(0,2), 16), parseInt(id.substr(2,2), 16), parseInt(id.substr(4,2), 16)],
-				light = (Math.max.apply(null,rgb) + Math.min.apply(null,rgb)) / 2;
+				// light = (Math.max.apply(null,rgb) + Math.min.apply(null,rgb)) / 2;
+				light = rgb[0]*0.299 + rgb[1]*0.587 + rgb[2]*0.114;
+			// console.log('#'+id+':'+light, $pid[0]);
 			switch(HLtype) {
 				case 1: $pid.css({'color': '#'+id, 'backgroundColor': (light > lightLimit ? bgDark : bgLight)}); break;
 				case 2: $pid.css({'backgroundColor': '#'+id, 'color': (light > lightLimit ? colDark : colLight)}); break;
@@ -68,7 +70,7 @@
 	$('div.thread').on('click', 'span.poster_id', function(ev) {
 		$thread = $(this).parents('.thread');
 		var id = $(this).text();
-		$('.post').removeClass('bci_selected bci_hidden').removeAttr('title');
+		$('div.thread .post').removeClass('bci_selected bci_hidden').removeAttr('title');
 
 		if(id === selectedID)
 			selectedID = '';
