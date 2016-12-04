@@ -40,7 +40,8 @@
 	var ColorizeID = function($post) {
 		var $pid = $post.find('.poster_id'),
 			id = $pid.text();
-		if(id == selectedID)
+		if(id === '') return;
+		if(id === selectedID)
 			$post.addClass('bci_selected');
 
 		if(HLtype) {
@@ -67,19 +68,20 @@
 	$('div.thread').on('click', 'span.poster_id', function(ev) {
 		$thread = $(this).parents('.thread');
 		var id = $(this).text();
-		var $posts = $thread.find('.post').removeClass('bci_selected bci_hidden').removeAttr('title');
+		$('.post').removeClass('bci_selected bci_hidden').removeAttr('title');
 
-		if(id == selectedID)
+		if(id === selectedID)
 			selectedID = '';
 		else {
 			selectedID = id;
 			if(ev.ctrlKey) {
-				$posts.find('.poster_id:not(:contains("' + id + '"))')
+				$thread.find('.poster_id:not(:contains("' + id + '"))')
 					.parents('.post')
 					.addClass('bci_hidden');
+				// todo: need scroll to element
 			}
 			else {
-				$posts.find('.poster_id:contains("' + id + '")')
+				$thread.find('.poster_id:contains("' + id + '")')
 					.parents('.post')
 					.addClass('bci_selected');
 			}
