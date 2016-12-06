@@ -26,15 +26,18 @@
 		colDark = "#000000", // color of font when BG color is bright
 		colLight = "#ffffff", // color of font when BG color is dark
 
-		$thread, selectedID = '', selectedCNT, selectedKey;
-
+		$thread, selectedID = '', selectedCNT, selectedHidden,
+		$navpanel = $('<span class="bci-nav"><div><span class="bci-dn">▼</span><span class="bci-up">▲</span></div></span>').hide();
 
     $('head').append('<style>' +
 		'span.poster_id {border-radius: 4px; font-size: 0.9em; padding: 2px; font-weight: normal;}' +
-		// '.bci_selected {background-blend-mode: hard-light !important; background-color: #ff0000 !important;}' +
-		'.bci_selected {background-blend-mode: luminosity !important; background-color: rgba(255, 0, 0, 0.25) !important; border-color: #ff0000 !important;}' +
-		'.bci_hidden > div {display:none !important;}' +
-		'.bci_hidden .poster_id {opacity: 0.6; !important;}' +
+		'.bci-selected {background-blend-mode: luminosity !important; background-color: rgba(255, 0, 0, 0.25) !important; border-color: #ff0000 !important;}' +
+		'.bci-hidden > div {display:none !important;}' +
+		'.bci-hidden .poster_id {opacity: 0.6; !important;}' +
+		'.bci-nav {position: relative;}' +
+		'.bci-nav div {position: absolute; border-radius: 4px 4px 0 0; font-size: 0.8em;height: 14px; top: -16px; right: 0; background: #f0f0ff; border: 1px solid #808080; box-sizing: content-box;}' +
+		'.bci-up, .bci-dn {cursor: pointer; color: #000000; padding: 2px;}'+
+		'.bci-up:hover, .bci-dn:hover {color: #0000ff}'+
         '</style>');
 
 	var ColorizeID = function($post) {
@@ -42,7 +45,7 @@
 			id = $pid.text();
 		if(id === '') return;
 		if(id === selectedID)
-			$post.addClass('bci_selected');
+			$post.addClass('bci-selected');
 
 		if(HLtype) {
 			var rgb = [parseInt(id.substr(0,2), 16), parseInt(id.substr(2,2), 16), parseInt(id.substr(4,2), 16)],
@@ -59,7 +62,7 @@
 	var updateCounter = function() {
 		if(selectedID === '' || !$thread) return;
 		var cnt = 1,
-			$selected = $thread.find('.bci_selected');
+			$selected = $thread.find('.bci-selected');
 		selectedCNT = $selected.length;
 		$selected.find('.poster_id').each(function() {
 			$(this).attr('title', cnt + ' (' + selectedCNT + ')');
@@ -70,25 +73,61 @@
 	$('div.thread').on('click', 'span.poster_id', function(ev) {
 		$thread = $(this).parents('.thread');
 		var id = $(this).text();
-		$('div.thread .post').removeClass('bci_selected bci_hidden').removeAttr('title');
+		$('div.thread .post').removeClass('bci-selected bci-hidden').removeAttr('title');
 
-		if(id === selectedID)
+		if(id === selectedID) {
 			selectedID = '';
+			$navpanel.hide();
+			if(selectedHidden)
+				$('html, body').animate({
+					scrollTop: $(this).offset().top - ev.clientY
+				}, 10);
+		}
 		else {
 			selectedID = id;
-			if(ev.ctrlKey) {
+			selectedHidden = ev.ctrlKey;
+			if(selectedHidden) {
 				$thread.find('.poster_id:not(:contains("' + id + '"))')
 					.parents('.post')
-					.addClass('bci_hidden');
+					.addClass('bci-hidden');
 				// todo: need scroll to element
 			}
-			else {
-				$thread.find('.poster_id:contains("' + id + '")')
-					.parents('.post')
-					.addClass('bci_selected');
-			}
+			$thread.find('.poster_id:contains("' + id + '")')
+				.parents('.post')
+				.addClass('bci-selected');
+			$thread.on('mouseover', '.bci-selected span.poster_id', function() {
+				$(this).after($navpanel);
+				$navpanel.show();
+			});
+			if(selectedHidden)
+				$('html, body').animate({
+					scrollTop: $(this).offset().top - ev.clientY
+				}, 10, function() {
+					$(this).trigger('mouseover');
+				});
+			else
+				$(this).trigger('mouseover');
 		}
 		updateCounter();
+	});
+
+	$navpanel.on('click', function(e){
+		var $el;
+		switch(e.target.className) {
+			case 'bci-up':
+				$el = $(this).parents('.post').prevUntil('.post:contains("'+selectedID+'")').last().prev();
+				break;
+			case 'bci-dn':
+				$el = $(this).parents('.post').nextUntil('.post:contains("'+selectedID+'")').last().next();
+				break;
+		}
+		if(!$el.length) return;
+		$el = $el.find('.poster_id');
+		 $('html, body').animate({
+		        scrollTop: $el.offset().top - e.clientY - 8
+		    }, 250, function() {
+				$el.trigger('mouseover');
+		    });		
 	});
 
 	$(document).on('new_post', function(ev, el) {
