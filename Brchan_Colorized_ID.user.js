@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name		BRchan Colorized ID
 // @namespace	https://brchan.org/
-// @version		1.0.0
+// @version		1.0.2
 // @author		pngcrypt
 // @include		http*://www.brchan.org/*
 // @include		http*://brchan.org/*
@@ -70,6 +70,11 @@
 		});
 	};
 
+	var id_mouseenter = function() {
+		$(this).after($navpanel);
+		$navpanel.show();
+	};
+
 	$('div.thread').on('click', 'span.poster_id', function(ev) {
 		$thread = $(this).parents('.thread');
 		var id = $(this).text();
@@ -78,6 +83,7 @@
 		if(id === selectedID) {
 			selectedID = '';
 			$navpanel.hide();
+			$thread.off('mouseenter', '.bci-selected span.poster_id', id_mouseenter);
 			if(selectedHidden)
 				$('html, body').animate({
 					scrollTop: $(this).offset().top - ev.clientY
@@ -92,21 +98,19 @@
 					.addClass('bci-hidden');
 				// todo: need scroll to element
 			}
-			$thread.find('.poster_id:contains("' + id + '")')
+			$thread
+				.find('.poster_id:contains("' + id + '")')
 				.parents('.post')
 				.addClass('bci-selected');
-			$thread.on('mouseover', '.bci-selected span.poster_id', function() {
-				$(this).after($navpanel);
-				$navpanel.show();
-			});
+			$thread.on('mouseenter', '.bci-selected span.poster_id', id_mouseenter);
 			if(selectedHidden)
 				$('html, body').animate({
 					scrollTop: $(this).offset().top - ev.clientY
 				}, 10, function() {
-					$(this).trigger('mouseover');
+					$(this).trigger('mouseenter');
 				});
 			else
-				$(this).trigger('mouseover');
+				$(this).trigger('mouseenter');
 		}
 		updateCounter();
 	});
@@ -126,7 +130,7 @@
 		 $('html, body').animate({
 		        scrollTop: $el.offset().top - e.clientY - 8
 		    }, 250, function() {
-				$el.trigger('mouseover');
+				$el.trigger('mouseenter');
 		    });		
 	});
 
