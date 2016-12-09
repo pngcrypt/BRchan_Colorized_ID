@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name		BRchan Colorized ID
 // @namespace	https://brchan.org/
-// @version		1.0.2
+// @version		1.0.3
 // @author		pngcrypt
 // @include		http*://www.brchan.org/*
 // @include		http*://brchan.org/*
@@ -12,8 +12,11 @@
 
 (function() {
 'use strict';
-	if(!window.jQuery || !window.$) return;
 	var $ = window.$;
+	if(typeof($) != 'function' || $('head title').text().match('CloudFlare')) 
+		return;
+
+	console.log('BRchan ColorizedID started');
 
 	var HLtype = 2, // Type of highlight: 0 - off, 1 - ID to font color; 2 - ID to background color
 		lightLimit = 128, // threshold of brightness
@@ -139,10 +142,10 @@
 		updateCounter();
 	});
 
-	$('div.thread .post').each(function(idx, el) {
-		ColorizeID($(el));
-	});
-
-	console.log('BRchan ColorizedID started');
+	setTimeout(function(){
+		$('div.thread .post').each(function(idx, el) {
+			ColorizeID($(el));
+		});
+	}, 0);
 
 })();
