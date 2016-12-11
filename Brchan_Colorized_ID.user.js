@@ -29,7 +29,7 @@
 		colDark = "#000000", // color of font when BG color is bright
 		colLight = "#ffffff", // color of font when BG color is dark
 
-		$thread, selectedID = '', selectedCNT, selectedHidden,
+		$thread, selectedID = '', selectedCNT, hideUnselected,
 		$navpanel = $('<span class="bci-nav"><div><span class="bci-dn">▼</span><span class="bci-up">▲</span></div></span>').hide();
 
     $('head').append('<style>' +
@@ -49,6 +49,8 @@
 		if(id === '') return;
 		if(id === selectedID)
 			$post.addClass('bci-selected');
+		else if(hideUnselected)
+			$post.addClass('bci-hidden');
 
 		if(HLtype) {
 			var rgb = [parseInt(id.substr(0,2), 16), parseInt(id.substr(2,2), 16), parseInt(id.substr(4,2), 16)],
@@ -87,15 +89,16 @@
 			selectedID = '';
 			$navpanel.hide();
 			$thread.off('mouseenter', '.bci-selected span.poster_id', id_mouseenter);
-			if(selectedHidden)
+			if(hideUnselected)
 				$('html, body').animate({
 					scrollTop: $(this).offset().top - ev.clientY
 				}, 10);
+			hideUnselected = false;
 		}
 		else {
 			selectedID = id;
-			selectedHidden = ev.ctrlKey;
-			if(selectedHidden) {
+			hideUnselected = ev.ctrlKey;
+			if(hideUnselected) {
 				$thread.find('.poster_id:not(:contains("' + id + '"))')
 					.parents('.post')
 					.addClass('bci-hidden');
@@ -106,7 +109,7 @@
 				.parents('.post')
 				.addClass('bci-selected');
 			$thread.on('mouseenter', '.bci-selected span.poster_id', id_mouseenter);
-			if(selectedHidden)
+			if(hideUnselected)
 				$('html, body').animate({
 					scrollTop: $(this).offset().top - ev.clientY
 				}, 10, function() {
