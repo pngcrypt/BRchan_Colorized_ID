@@ -1,10 +1,11 @@
 // ==UserScript==
 // @name		BRchan Colorized ID
 // @namespace	https://brchan.org/
-// @version		1.0.3
+// @version		1.0.4
 // @author		pngcrypt
 // @include		http*://www.brchan.org/*
 // @include		http*://brchan.org/*
+// @include     http://brchanansdnhvvnm.onion/*
 // @grant		none
 // @run-at		document-idle
 // @nocompat	Chrome
@@ -102,7 +103,6 @@
 				$thread.find('.poster_id:not(:contains("' + id + '"))')
 					.parents('.post')
 					.addClass('bci-hidden');
-				// todo: need scroll to element
 			}
 			$thread
 				.find('.poster_id:contains("' + id + '")')
